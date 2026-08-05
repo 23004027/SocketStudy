@@ -60,38 +60,56 @@ Socket programming finds applications in various domains, including web developm
 ## `client.py`
 ```python
 import socket
-from datetime import datetime
-s=socket.socket()
-s.bind(('localhost',8000))
+
+s = socket.socket()
+s.bind(('localhost', 8000))
 s.listen(5)
+print('Waiting for connection...')
 c, addr = s.accept()
-print("client Address:", addr)
-now = datetime.now()
-c.send(now.strftime("%d/%m/%Y %H:%M:%S").encode())
-ack=c.recv(1024).decode()
-if ack:
-    print(ack)
+print(f'Connected by {addr}')
+
+try:
+    while True:
+        i = input("Enter a data: ")
+        if not i:
+            print('No input entered, closing connection.')
+            break
+        c.send(i.encode())
+
+        ack = c.recv(1024).decode()
+        if not ack:
+            print('Connection closed by peer.')
+            break
+        print(ack)
+finally:
     c.close()
+    s.close()
+
 
 ```
 ## `server.py`
 ```python
 import socket
-s=socket.socket()
-s.connect(('localhost',8000))
-print(s.getsockname())
-print(s.recv(1024).decode())
-s.send("Acknowledged received from the server".encode())
+s = socket.socket()
+s.connect(('localhost', 8000))
+
+while True:
+    data = s.recv(1024)
+    if not data:
+        break
+    print(data.decode())
+    s.send("Acknowledgement Received".encode())
+
 
 ```
 
 ## OUTPUT:
 ### CLIENT:
-<img width="575" height="178" alt="image" src="https://github.com/user-attachments/assets/d008ffd7-2646-475a-aa8c-3854099e21f9" />
+<img width="585" height="217" alt="image" src="https://github.com/user-attachments/assets/c0e4960e-f009-4592-9e63-10abdbbe0fa3" />
 
 
 ### SERVER:
-<img width="561" height="143" alt="image" src="https://github.com/user-attachments/assets/b0a798e8-0676-4df5-a10e-6bd6b1649717" />
+<img width="567" height="161" alt="image" src="https://github.com/user-attachments/assets/6b53baf7-e2e8-4273-9021-07ad42b92dc0" />
 
 
 
